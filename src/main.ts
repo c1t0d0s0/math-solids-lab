@@ -7,6 +7,7 @@ import {
   ModeId,
   isModeVisible,
   findModeMeta,
+  resolveGrade,
 } from './modes/ModesConfig';
 import { renderHanamaruSvg, renderMonkeySvg } from './core/SvgIcons';
 import { progressStore } from './core/ProgressStore';
@@ -26,7 +27,9 @@ const ACCOUNT_STATUS_TEXT: Record<string, string> = {
 
 class MathSolidsLabApp {
   private rootEl: HTMLElement;
-  private currentGrade: GradeFilterId = 'all';
+  private currentGrade: GradeFilterId = resolveGrade(
+    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('grade') : null
+  );
   private activeModeId: ModeId | null = null;
   private assistEnabled = true;
   private authBusy = false;

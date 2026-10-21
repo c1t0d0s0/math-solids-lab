@@ -157,3 +157,23 @@ export function isModeVisible(mode: ModeMeta, grade: GradeFilterId): boolean {
 export function findModeMeta(id: ModeId): ModeMeta {
   return MODES.find(m => m.id === id) ?? MODES[0];
 }
+
+const GRADE_BY_PARAM: Record<string, GradeFilterId> = {
+  '1': 'low',
+  '2': 'low',
+  low: 'low',
+  '3': 'mid',
+  '4': 'mid',
+  mid: 'mid',
+  '5': 'high',
+  '6': 'high',
+  high: 'high',
+  all: 'all',
+};
+
+/** URL の ?grade=... を学年タブの id に変換する（未指定・不明な値は 'all'） */
+export function resolveGrade(value: string | null | undefined): GradeFilterId {
+  if (!value) return 'all';
+  return GRADE_BY_PARAM[value.trim()] ?? 'all';
+}
+

@@ -8,6 +8,7 @@ import {
   matchCubeNetPattern,
 } from '../src/engine/CubeNetsData';
 import { NetFoldingEngine } from '../src/engine/NetFoldingEngine';
+import { resolveGrade } from '../src/modes/ModesConfig';
 
 describe('CubeNetsData & 3D Folding Analysis', () => {
   it('validates all 11 canonical cube nets fold without collision and cover all 6 faces', () => {
@@ -94,5 +95,17 @@ describe('CubeNetsData & 3D Folding Analysis', () => {
         expect(worldCenters).toEqual(expectedCubeFaceCenters);
       }
     }
+  });
+
+  it('resolves ?grade=1..6 query parameters to the corresponding grade tab', () => {
+    expect(resolveGrade('1')).toBe('low');
+    expect(resolveGrade('2')).toBe('low');
+    expect(resolveGrade('3')).toBe('mid');
+    expect(resolveGrade('4')).toBe('mid');
+    expect(resolveGrade('5')).toBe('high');
+    expect(resolveGrade('6')).toBe('high');
+    expect(resolveGrade(null)).toBe('all');
+    expect(resolveGrade('')).toBe('all');
+    expect(resolveGrade('unknown')).toBe('all');
   });
 });
