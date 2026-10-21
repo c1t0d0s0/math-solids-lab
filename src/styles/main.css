@@ -1,0 +1,1198 @@
+/* 原稿用紙・方眼ノートと赤ペン・蛍光マーカーをもとにした見た目（math-quiz と同じテイスト）。
+   暗い画面では黒板とチョークになる */
+:root {
+    --bg: #eef3ee;
+    --paper: #fdfdfa;
+    --rule: #6aa893;
+    --rule-soft: #c5ddd3;
+    --ink: #1c2a4a;
+    --muted: #566475;
+    --mark: #ffe36e;
+    --mark-soft: #fff5c2;
+    --red: #d63c2c;
+    --red-soft: #fde3df;
+    --on-ink: #fdfdfa;
+    --ui: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+    --hand: 'Klee One', 'UD Digi Kyokasho N-R', 'Hiragino Maru Gothic ProN', 'Yu Gothic', sans-serif;
+    color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #14211c;
+        --paper: #1d2f28;
+        --rule: #4f8a76;
+        --rule-soft: #2f4a40;
+        --ink: #eef1e4;
+        --muted: #a3b3a8;
+        --mark: #8a7417;
+        --mark-soft: #48431f;
+        --red: #ff8d7d;
+        --red-soft: #4d2721;
+        --on-ink: #14211c;
+    }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--ui);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.7;
+    overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+}
+
+button,
+input,
+select {
+    font: inherit;
+    color: inherit;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+}
+
+/* ---- 共通の部品 (math-quiz 準拠) ---- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.5rem;
+    padding: 0 1.05rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s, transform 0.1s;
+}
+
+.btn:hover:not(:disabled) {
+    background: var(--mark-soft);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--on-ink);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--ink);
+    opacity: 0.9;
+}
+
+.btn-accent {
+    border-color: var(--red);
+    background: var(--red);
+    color: #fff;
+}
+
+.btn-accent:hover:not(:disabled) {
+    background: var(--red);
+    opacity: 0.9;
+}
+
+.btn-active {
+    border-color: var(--ink);
+    background: var(--mark);
+    color: var(--ink);
+    box-shadow: 0 0 0 1px var(--ink);
+}
+
+.btn-quiet {
+    border-color: transparent;
+    background: none;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.btn-sm {
+    min-height: 2.1rem;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+}
+
+.btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+/* 花丸 SVG */
+.hanamaru {
+    width: 4.5rem;
+    height: 4.5rem;
+    flex: none;
+    fill: none;
+    stroke: var(--red);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.hanamaru.is-drawn polyline {
+    stroke-dasharray: 1;
+    animation: draw 1.4s ease-out 0.1s both;
+}
+
+@keyframes draw {
+    from {
+        stroke-dashoffset: 1;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.hanamaru-small {
+    position: absolute;
+    right: 0.4rem;
+    bottom: 0.15rem;
+    width: 2.85rem;
+    height: 2.85rem;
+    stroke-width: 2.5;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ---- ホーム画面 (math-quiz 完全準拠) ---- */
+.home {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 1.75rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+}
+
+.home-side {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.35rem;
+}
+
+.home-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+}
+
+.home h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.hero {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.6rem, 3vw, 1.25rem);
+}
+
+.hero-text {
+    flex: 1;
+    min-width: 0;
+}
+
+/* タイトルのかざりマス目 */
+.crest {
+    display: grid;
+    --crest: clamp(1.9rem, 8vw, 2.5rem);
+    grid-template-columns: repeat(2, var(--crest));
+    grid-auto-rows: var(--crest);
+    gap: 1px;
+    flex: none;
+}
+
+.crest-cell {
+    display: grid;
+    place-items: center;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.crest-cross {
+    background: var(--mark);
+    color: #1c2a4a;
+}
+
+.brand {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: clamp(1.65rem, 7.5vw, 2.35rem);
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+}
+
+.lead {
+    margin-top: 0.35rem;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.monkey {
+    flex: none;
+    width: clamp(3.25rem, 15vw, 6rem);
+}
+
+.monkey svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* 学年の切りかえ */
+.mode {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    box-shadow: 0 0 0 1px var(--rule);
+    background: var(--rule);
+}
+
+.mode-option {
+    display: grid;
+    justify-items: center;
+    padding: 0.55rem 0.25rem;
+    border: 0;
+    background: var(--paper);
+    cursor: pointer;
+}
+
+.mode-label {
+    font-weight: 700;
+    font-size: clamp(0.8125rem, 3.5vw, 1rem);
+    line-height: 1.85;
+    white-space: nowrap;
+}
+
+.mode-option[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--on-ink);
+}
+
+.mode-option:focus-visible {
+    outline-offset: -4px;
+    outline-color: var(--red);
+}
+
+/* 進捗・コレクションボックス */
+.reward-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem 1rem;
+    padding: 0.85rem 1.15rem;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+}
+
+.points {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+}
+
+.points-label {
+    color: var(--muted);
+    font-size: 0.8125rem;
+}
+
+.points-num {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.45rem;
+    line-height: 1.2;
+}
+
+.reward-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.section-note {
+    color: var(--muted);
+    font-size: 0.9375rem;
+    margin-top: 0.15rem;
+}
+
+/* モードタイル一覧 */
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.tile {
+    position: relative;
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 0.15rem;
+    min-width: 0;
+    padding: 0.85rem 1rem 0.9rem;
+    border: 0;
+    border-left: 0.5rem solid var(--rule);
+    border-radius: 0;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background-color 0.15s;
+}
+
+.tile:hover {
+    background: var(--mark-soft);
+}
+
+.tile-badge {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.tile-title {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.325rem;
+    line-height: 1.35;
+}
+
+.tile-meta {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    margin-top: 0.1rem;
+}
+
+.tile-record {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    width: 100%;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.tile-record b {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.1875rem;
+    line-height: 1;
+}
+
+/* ---- 3Dラボ・アクティビティ画面 ---- */
+.lab-page {
+    max-width: 50rem;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+}
+
+.bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0;
+}
+
+.bar h1 {
+    font-size: clamp(1rem, 4.2vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.back.home-btn {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 2.35rem;
+    padding: 0 0.9rem 0 0.65rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--on-ink);
+    font-size: 0.875rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.home-btn span {
+    font-size: 1.35em;
+    line-height: 1;
+    transform: translateY(-0.05em);
+}
+
+.bar-tools {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+/* ステータス・サブモード切替バー */
+.meter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0.9rem;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+}
+
+.submode-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.submode-tab {
+    min-height: 2rem;
+    padding: 0.15rem 0.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.submode-tab[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
+}
+
+.meter-status {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.meter-num {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.35rem;
+    line-height: 1.1;
+    color: var(--red);
+}
+
+/* ラボ本体レイアウト（モバイル・タブレットは1列、PCワイドは左右2列） */
+.lab-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin-top: 0.85rem;
+    align-items: start;
+}
+
+.viewport-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+/* 3D ビューポートシート（方眼ノート背景） */
+.viewport-sheet {
+    position: relative;
+    width: 100%;
+    height: clamp(16.5rem, 45dvh, 25rem);
+    background-color: var(--paper);
+    background-image:
+        linear-gradient(rgb(106 168 147 / 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(106 168 147 / 0.18) 1px, transparent 1px);
+    background-size: 20px 20px;
+    box-shadow: 0 0 0 1px var(--rule);
+    border-left: 0.5rem solid var(--rule);
+    overflow: hidden;
+}
+
+.canvas-container {
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: grab;
+}
+
+.canvas-container:active {
+    cursor: grabbing;
+}
+
+.canvas-container canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 3D ビューポート内オーバーレイバッジ・ヒント */
+.viewport-overlay-top {
+    position: absolute;
+    top: 0.55rem;
+    left: 0.65rem;
+    right: 0.65rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.viewport-badge {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.viewport-badge.is-alert {
+    background: var(--red-soft);
+    color: var(--red);
+    box-shadow: 0 0 0 2px var(--red);
+    animation: shake 0.35s ease;
+}
+
+.viewport-badge.is-ok {
+    background: var(--mark);
+    color: #1c2a4a;
+    box-shadow: 0 0 0 2px var(--ink);
+}
+
+.viewport-cam-btns {
+    pointer-events: auto;
+    display: flex;
+    gap: 0.3rem;
+}
+
+.cam-btn {
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.cam-btn:hover {
+    background: var(--mark-soft);
+}
+
+.viewport-overlay-bottom {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.65rem;
+    right: 0.65rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.viewport-hint {
+    padding: 0.15rem 0.55rem;
+    background: rgb(253 253 250 / 0.88);
+    box-shadow: 0 0 0 1px var(--rule-soft);
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+@media (prefers-color-scheme: dark) {
+    .viewport-hint {
+        background: rgb(29 47 40 / 0.88);
+    }
+}
+
+/* ---- 組み立てスライダーバー（全学年共通コアUI） ---- */
+.fold-slider-card {
+    padding: 0.75rem 1rem;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+    border-left: 0.5rem solid var(--ink);
+    display: grid;
+    gap: 0.45rem;
+}
+
+.fold-slider-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.fold-slider-label {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.fold-slider-pct {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.35rem;
+    line-height: 1;
+    padding: 0.1rem 0.5rem;
+    background: var(--mark-soft);
+    box-shadow: 0 0 0 1px var(--rule);
+}
+
+.fold-slider-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.fold-Quick-btn {
+    min-height: 2.15rem;
+    padding: 0 0.65rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.fold-Quick-btn:hover {
+    background: var(--mark-soft);
+}
+
+.fold-range {
+    width: 100%;
+    height: 2.25rem;
+    margin: 0;
+    accent-color: var(--ink);
+    cursor: pointer;
+    touch-action: pan-x;
+}
+
+/* ---- 右側（モバイルでは下側）操作パネル ---- */
+.control-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+.sheet-card {
+    padding: 1rem 1.15rem;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+    border-left: 0.5rem solid var(--rule);
+    display: grid;
+    gap: 0.7rem;
+    min-width: 0;
+}
+
+.sheet-card.is-highlight {
+    background: var(--mark-soft);
+}
+
+.sheet-title {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.35;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.sheet-desc {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--ink);
+}
+
+.sheet-note {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+/* 選択肢ボタン (math-quiz .option 準拠) */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+.options-grid.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.option {
+    min-height: 3.35rem;
+    padding: 0.5rem 0.65rem;
+    border: 0;
+    border-radius: 0;
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    text-align: center;
+    transition: background-color 0.15s;
+}
+
+.option:hover:not(:disabled) {
+    background: var(--mark-soft);
+}
+
+.option:disabled {
+    cursor: default;
+    color: var(--muted);
+}
+
+.option.is-selected {
+    background: var(--mark-soft);
+    box-shadow: 0 0 0 2px var(--ink);
+}
+
+.option.correct {
+    background: var(--mark);
+    color: #1c2a4a;
+    box-shadow: 0 0 0 2px var(--ink);
+    z-index: 1;
+}
+
+.option.incorrect {
+    background: var(--red-soft);
+    color: var(--red);
+    box-shadow: 0 0 0 2px var(--red);
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* フィードバックメッセージ（花丸つき） */
+.feedback-box {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 1rem;
+    background: var(--mark-soft);
+    box-shadow: 0 0 0 1px var(--rule);
+}
+
+.feedback-box.is-ng {
+    background: var(--red-soft);
+    box-shadow: 0 0 0 1px var(--red);
+}
+
+.feedback-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.feedback-verdict {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--red);
+    line-height: 1.3;
+}
+
+.feedback-detail {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-top: 0.15rem;
+}
+
+/* ---- 2D方眼グリッド（展開図エディタ・スタンプ盤・11展開図パズル） ---- */
+.net-grid-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.net-grid {
+    display: grid;
+    gap: 2px;
+    padding: 2px;
+    background: var(--rule);
+    box-shadow: 0 0 0 1px var(--rule);
+    width: min(100%, 20rem);
+    aspect-ratio: 1;
+}
+
+.net-cell {
+    position: relative;
+    border: 0;
+    padding: 0;
+    background: var(--paper);
+    display: grid;
+    place-items: center;
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: clamp(0.95rem, 3.5vw, 1.25rem);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.12s, transform 0.08s;
+}
+
+.net-cell:hover {
+    background: var(--mark-soft);
+}
+
+.net-cell.is-active {
+    background: var(--mark);
+    color: #1c2a4a;
+    box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.net-cell.is-root {
+    background: var(--mark);
+    color: #1c2a4a;
+    box-shadow: inset 0 0 0 3px var(--ink);
+}
+
+.net-cell.is-stamped {
+    background: var(--mark-soft);
+    box-shadow: inset 0 0 0 2px var(--rule);
+}
+
+.net-cell.is-target {
+    background: rgb(106 168 147 / 0.18);
+    box-shadow: inset 0 0 0 2px dashed var(--rule);
+}
+
+.net-cell-sub {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 0.65rem;
+    font-family: var(--ui);
+    color: var(--muted);
+}
+
+/* 方向十字キー（箱ころがしスタンプ用） */
+.dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 3.2rem);
+    grid-template-rows: repeat(2, 2.75rem);
+    gap: 0.4rem;
+    justify-content: center;
+    margin: 0.25rem auto;
+}
+
+.dpad-btn {
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+    font-weight: 700;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.dpad-btn:hover:not(:disabled) {
+    background: var(--mark-soft);
+}
+
+.dpad-btn:active:not(:disabled) {
+    background: var(--mark);
+}
+
+/* シール・スタンプ・色パレット */
+.palette-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.palette-item {
+    min-width: 2.75rem;
+    min-height: 2.6rem;
+    padding: 0.25rem 0.55rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.palette-item.is-selected {
+    background: var(--mark);
+    color: #1c2a4a;
+    box-shadow: 0 0 0 2px var(--ink);
+}
+
+/* 11展開図収集手帳グリッド */
+.notebook-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.2rem, 1fr));
+    gap: 0.55rem;
+}
+
+.notebook-card {
+    position: relative;
+    padding: 0.45rem;
+    background: var(--bg);
+    box-shadow: 0 0 0 1px var(--rule-soft);
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+    text-align: center;
+    cursor: pointer;
+    border: 0;
+}
+
+.notebook-card.is-found {
+    background: var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+}
+
+.notebook-card.is-found:hover {
+    background: var(--mark-soft);
+}
+
+.notebook-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 0.7rem);
+    grid-template-rows: repeat(5, 0.7rem);
+    gap: 1px;
+}
+
+.notebook-mini-cell {
+    background: transparent;
+}
+
+.notebook-mini-cell.on {
+    background: var(--rule-soft);
+}
+
+.notebook-card.is-found .notebook-mini-cell.on {
+    background: var(--ink);
+}
+
+.notebook-card-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    line-height: 1.25;
+}
+
+.notebook-card.is-found .notebook-card-name {
+    color: var(--ink);
+}
+
+/* スライダー設定行（切断面や回転体用） */
+.param-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr 3.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.param-label {
+    font-weight: 700;
+}
+
+.param-val {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: right;
+}
+
+/* 断面プレビューSVG枠 */
+.section-preview-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.65rem 0.9rem;
+    background: var(--bg);
+    box-shadow: 0 0 0 1px var(--rule);
+}
+
+.section-shape-badge {
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.45rem;
+    color: var(--red);
+}
+
+/* ---- 画面幅に応じたレスポンシブ調整 ---- */
+@media (max-width: 30rem) {
+    .home {
+        padding: 1.25rem 0.85rem 3rem;
+        gap: 1.75rem;
+    }
+
+    .lab-page {
+        padding: 0 0.75rem 2.5rem;
+    }
+
+    .viewport-sheet {
+        height: clamp(14.5rem, 40dvh, 19.5rem);
+    }
+
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .options-grid.cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .param-row {
+        grid-template-columns: 5.5rem 1fr 3rem;
+        font-size: 0.8125rem;
+    }
+
+    .fold-slider-card {
+        padding: 0.6rem 0.75rem;
+    }
+}
+
+/* 広い画面 (PC / 大型タブレット横): 左右2カラム */
+@media (min-width: 64rem) {
+    .home {
+        max-width: 92rem;
+        grid-template-columns: minmax(17.5rem, 21.5rem) minmax(0, 1fr);
+        column-gap: 3rem;
+        align-items: start;
+        padding: 2.5rem 2rem 3rem;
+    }
+
+    .home-side {
+        position: sticky;
+        top: 2rem;
+    }
+
+    .hero {
+        position: relative;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.9rem;
+    }
+
+    .hero .monkey {
+        position: absolute;
+        top: -0.4rem;
+        right: 0;
+        width: 5.75rem;
+    }
+
+    .mode {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .tiles {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* ラボ画面: 左に3Dビューポート＋スライダー、右に操作パネル */
+    .lab-page {
+        max-width: 92rem;
+        padding: 0 2rem 3rem;
+    }
+
+    .lab-layout {
+        grid-template-columns: minmax(0, 1.38fr) minmax(22rem, 1fr);
+        gap: 1.5rem;
+    }
+
+    .viewport-col {
+        position: sticky;
+        top: 0.75rem;
+    }
+
+    .viewport-sheet {
+        height: clamp(22rem, 100dvh - 13.5rem, 36rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hanamaru.is-drawn polyline,
+    .option.incorrect,
+    .viewport-badge.is-alert {
+        animation: none;
+    }
+}

@@ -1,0 +1,8 @@
+config.js
+public/config.js
+node_modules
+dist
+dist-ssr
+*.local
+*-debug.log
+.DS_Store
