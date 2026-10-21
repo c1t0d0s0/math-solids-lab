@@ -32,6 +32,12 @@ jobs:
       - run: npm run build
         env:
           GTM_ID: ${{ vars.GTM_ID }}
+          # 4つとも登録してあれば、Google ログインと Firestore への保存が使えるようになる (なければログインの入り口を出さない)
+          FIREBASE_API_KEY: ${{ vars.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ vars.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          FIREBASE_APP_ID: ${{ vars.FIREBASE_APP_ID }}
+          FIREBASE_DATABASE_URL: ${{ vars.FIREBASE_DATABASE_URL }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -347,6 +347,39 @@ select {
     gap: 0.5rem;
 }
 
+/* ログインと記録の保存 (math-quiz 準拠) */
+.account {
+    display: grid;
+    justify-items: start;
+    gap: 0.6rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule-soft);
+}
+
+.account-note {
+    color: var(--muted);
+    font-size: 0.9375rem;
+    max-width: 38rem;
+}
+
+.account-state {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+}
+
+.account-status {
+    color: var(--muted);
+    font-size: 0.875rem;
+}
+
+.account-status.is-offline,
+.account-error {
+    color: var(--red);
+    font-size: 0.875rem;
+}
+
 .section-note {
     color: var(--muted);
     font-size: 0.9375rem;
@@ -1144,6 +1177,18 @@ select {
     .home-side {
         position: sticky;
         top: 2rem;
+    }
+
+    .home-side .account {
+        padding: 1rem 1.1rem 1.1rem;
+        border-top: 0;
+        background: var(--paper);
+        box-shadow: 0 0 0 1px var(--rule);
+    }
+
+    .home-side .account-note {
+        font-size: 0.875rem;
+        line-height: 1.65;
     }
 
     .hero {

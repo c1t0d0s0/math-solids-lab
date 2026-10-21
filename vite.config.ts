@@ -18,6 +18,42 @@ function readFromConfigJs(name: string): string {
   return '';
 }
 
+function getEnv(name: string): string {
+  const proc = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process;
+  return (proc?.env?.[name] ?? '').trim();
+}
+
+/**
+ * Firebase の設定 (Google ログインと Firestore への保存に使う)。
+ * 環境変数があればその値、なければ config.js の値を使う。4つそろっていなければ null で、
+ * そのときはログインの入り口を出さず、Firebase のコードも読みこまれない。
+ *   FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_PROJECT_ID, FIREBASE_APP_ID
+ */
+export function readFirebaseConfig(): Record<string, string> | null {
+  if (getEnv('FIREBASE_DISABLED') === '1') return null;
+  const get = (name: string) => getEnv(name) || readFromConfigJs(name);
+  const config = {
+    apiKey: get('FIREBASE_API_KEY'),
+    authDomain: get('FIREBASE_AUTH_DOMAIN'),
+    projectId: get('FIREBASE_PROJECT_ID'),
+    appId: get('FIREBASE_APP_ID'),
+  };
+  const filled = Object.values(config).filter(Boolean).length;
+  if (filled === 0) return null;
+  if (filled < 4) {
+    throw new Error(
+      'Firebase の設定が足りません。FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_PROJECT_ID, FIREBASE_APP_ID の4つを入れてください'
+    );
+  }
+  const databaseURL = get('FIREBASE_DATABASE_URL').replace(/\/+$/, '');
+  if (databaseURL && !/^https?:\/\/[\w.:-]+$/.test(databaseURL)) {
+    throw new Error(
+      `FIREBASE_DATABASE_URL の形式が正しくありません: "${databaseURL}" (https://….firebasedatabase.app など)`
+    );
+  }
+  return databaseURL ? { ...config, databaseURL } : config;
+}
+
 /**
  * Google のタグの ID を決める。
  * 1. 環境変数 GTM_ID があれば、その値 (GitHub Actions では vars.GTM_ID をわたす)
@@ -25,10 +61,7 @@ function readFromConfigJs(name: string): string {
  * どちらもなければタグは埋め込まない。
  */
 export function readGtmId(): string {
-  const proc = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process;
-  const envVal = (proc?.env?.GTM_ID ?? '').trim();
-  const value = envVal || readFromConfigJs('GTM_ID');
-  // 未設定またはサンプルのプレースホルダー G-XXXXXXXXXX のときは埋め込まない
+  const value = getEnv('GTM_ID') || readFromConfigJs('GTM_ID');
   if (!value || value === 'G-XXXXXXXXXX') return '';
   if (!/^(GTM|G)-[A-Z0-9]+$/.test(value)) {
     throw new Error(`GTM_ID の形式が正しくありません: "${value}" (G-XXXXXXXXXX または GTM-XXXXXXX)`);
@@ -81,6 +114,10 @@ function googleTagPlugin(id: string): Plugin {
 export default defineConfig({
   base: './',
   plugins: [googleTagPlugin(readGtmId())],
+  define: {
+    __FIREBASE_CONFIG__: JSON.stringify(readFirebaseConfig()),
+    __FIREBASE_EMULATOR__: JSON.stringify(getEnv('FIREBASE_EMULATOR') === '1'),
+  },
   server: {
     port: 5173,
     host: true,

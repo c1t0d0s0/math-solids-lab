@@ -18,18 +18,63 @@ import { Grade34Mode } from './modes/Grade34Mode';
 import { Grade56Mode } from './modes/Grade56Mode';
 import { SandboxMode } from './modes/SandboxMode';
 
+const ACCOUNT_STATUS_TEXT: Record<string, string> = {
+  syncing: '保存中…',
+  synced: '保存ずみ',
+  offline: 'まだ保存できていません。つながったら保存します。',
+};
+
 class MathSolidsLabApp {
   private rootEl: HTMLElement;
   private currentGrade: GradeFilterId = 'all';
   private activeModeId: ModeId | null = null;
   private assistEnabled = true;
+  private authBusy = false;
+  private authError = '';
 
   private sceneManager: SceneManager | null = null;
   private activeController: LabModeController | null = null;
 
   constructor(rootEl: HTMLElement) {
     this.rootEl = rootEl;
+    progressStore.subscribe(() => {
+      if (this.activeModeId === null) {
+        this.renderHome();
+      }
+    });
     this.renderHome();
+  }
+
+  private renderAccountBoxHtml(): string {
+    const account = progressStore.account;
+    if (!account.available) return '';
+
+    let bodyHtml = '';
+    if (account.status === 'loading') {
+      bodyHtml = `<p class="account-status">たしかめています…</p>`;
+    } else if (!account.signedIn) {
+      bodyHtml = `
+        <p class="account-note">Google でログインすると、記録が保存されて、ほかのブラウザや端末でも同じ記録で遊べます。ログインしなくても遊べます。</p>
+        <button id="sign-in-button" type="button" class="btn btn-primary" ${this.authBusy ? 'disabled' : ''}>Google でログイン</button>
+        ${this.authError ? `<p class="account-error" role="alert">${this.authError}</p>` : ''}
+      `;
+    } else {
+      const stText = ACCOUNT_STATUS_TEXT[account.status] ?? '';
+      bodyHtml = `
+        <p class="account-state">
+          <b>ログイン中</b>
+          <span class="account-status is-${account.status}" role="status">${stText}</span>
+        </p>
+        <button id="sign-out-button" type="button" class="btn" ${this.authBusy ? 'disabled' : ''}>ログアウト</button>
+      `;
+    }
+
+    return `
+      <section class="account" aria-labelledby="account-title">
+        <h2 id="account-title">記録の保存</h2>
+        ${bodyHtml}
+      </section>
+    `;
   }
 
   private renderHome(): void {
@@ -50,6 +95,7 @@ class MathSolidsLabApp {
 
     const foundNets = progressStore.getFoundNetsCount();
     const totalPoints = progressStore.getTotalPoints();
+    const account = progressStore.account;
 
     this.rootEl.innerHTML = `
       <main id="start-container" class="home">
@@ -86,17 +132,19 @@ class MathSolidsLabApp {
           <nav class="reward-links" aria-label="ずかんとじゆうさくせい">
             <p class="points">
               <span class="points-label">ラボポイント</span>
-              <b class="points-num">${totalPoints} pt</b>
+              <b class="points-num">${account.loading ? '…' : `${totalPoints} pt`}</b>
             </p>
             <div class="reward-buttons">
               <button type="button" class="btn" id="quick-notebook">
-                📖 11展開図ずかん (${foundNets}/11)
+                📖 11展開図ずかん (${account.loading ? '…' : `${foundNets}/11`})
               </button>
               <button type="button" class="btn btn-primary" id="quick-sandbox">
                 🛠️ じゆうさくせい
               </button>
             </div>
           </nav>
+
+          ${this.renderAccountBoxHtml()}
         </div>
 
         <div class="home-main">
@@ -113,7 +161,10 @@ class MathSolidsLabApp {
                         mode.id === 'g34-notebook'
                           ? foundNets
                           : progressStore.getScore(mode.id);
-                      const isMastered = score >= mode.goalCount;
+                      const isMastered = !account.loading && score >= mode.goalCount;
+                      const recordHtml = account.loading
+                        ? '読みこみ中…'
+                        : `記録: <b>${score}</b> / ${mode.goalCount} ${mode.unit}`;
                       return `
                         <button
                           type="button"
@@ -125,7 +176,7 @@ class MathSolidsLabApp {
                           <span class="tile-title">${mode.title}</span>
                           <span class="tile-meta">${mode.desc}</span>
                           <span class="tile-record high-score-tag">
-                            記録: <b>${score}</b> / ${mode.goalCount} ${mode.unit}
+                            ${recordHtml}
                           </span>
                           ${isMastered ? renderHanamaruSvg('hanamaru hanamaru-small', false) : ''}
                         </button>
@@ -166,6 +217,43 @@ class MathSolidsLabApp {
     this.rootEl.querySelector('#quick-sandbox')?.addEventListener('click', () => {
       sound.playPop();
       this.startMode('sandbox');
+    });
+
+    this.rootEl.querySelector('#sign-in-button')?.addEventListener('click', async () => {
+      this.authBusy = true;
+      this.authError = '';
+      this.renderHome();
+      try {
+        await progressStore.signIn();
+      } catch (err: unknown) {
+        const code = (err as { code?: string })?.code ?? '';
+        if (!/popup-closed-by-user|cancelled-popup-request/.test(code)) {
+          this.authError =
+            'ログインできませんでした。もういちどためしてください。' + (code ? ` (${code})` : '');
+        }
+      } finally {
+        this.authBusy = false;
+        this.renderHome();
+      }
+    });
+
+    this.rootEl.querySelector('#sign-out-button')?.addEventListener('click', async () => {
+      this.authBusy = true;
+      this.renderHome();
+      try {
+        const res = await progressStore.signOut();
+        if (
+          res === 'unsynced' &&
+          window.confirm(
+            'まだ保存できていない記録があります。今ログアウトすると、その分はなくなります。ログアウトしますか？'
+          )
+        ) {
+          await progressStore.signOut(true);
+        }
+      } finally {
+        this.authBusy = false;
+        this.renderHome();
+      }
     });
   }
 
