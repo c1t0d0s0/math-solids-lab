@@ -316,14 +316,6 @@ class ProgressStore {
   public getCutShapesFound(): string[] {
     return this.activeData.cutShapesFound;
   }
-
-  public getTotalPoints(): number {
-    const d = this.activeData;
-    const modePts = Object.values(d.scores).reduce((a, b) => a + b * 10, 0);
-    const netPts = d.foundCubeNets.length * 20;
-    const cutPts = d.cutShapesFound.length * 15;
-    return modePts + netPts + cutPts;
-  }
 }
 
 export const progressStore = new ProgressStore();

@@ -94,7 +94,6 @@ class MathSolidsLabApp {
     })).filter(g => g.modes.length > 0);
 
     const foundNets = progressStore.getFoundNetsCount();
-    const totalPoints = progressStore.getTotalPoints();
     const account = progressStore.account;
 
     this.rootEl.innerHTML = `
@@ -130,10 +129,6 @@ class MathSolidsLabApp {
           </div>
 
           <nav class="reward-links" aria-label="ずかんとじゆうさくせい">
-            <p class="points">
-              <span class="points-label">ラボポイント</span>
-              <b class="points-num">${account.loading ? '…' : `${totalPoints} pt`}</b>
-            </p>
             <div class="reward-buttons">
               <button type="button" class="btn" id="quick-notebook">
                 📖 11展開図ずかん (${account.loading ? '…' : `${foundNets}/11`})

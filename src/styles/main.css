@@ -324,24 +324,6 @@ select {
     box-shadow: 0 0 0 1px var(--rule);
 }
 
-.points {
-    display: flex;
-    align-items: baseline;
-    gap: 0.55rem;
-}
-
-.points-label {
-    color: var(--muted);
-    font-size: 0.8125rem;
-}
-
-.points-num {
-    font-family: var(--hand);
-    font-weight: 600;
-    font-size: 1.45rem;
-    line-height: 1.2;
-}
-
 .reward-buttons {
     display: flex;
     flex-wrap: wrap;
