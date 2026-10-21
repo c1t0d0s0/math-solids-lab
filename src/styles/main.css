@@ -227,7 +227,7 @@ select {
 /* タイトルのかざりマス目 */
 .crest {
     display: grid;
-    --crest: clamp(1.9rem, 8vw, 2.5rem);
+    --crest: clamp(1.7rem, 7vw, 2.4rem);
     grid-template-columns: repeat(2, var(--crest));
     grid-auto-rows: var(--crest);
     gap: 1px;
@@ -253,9 +253,10 @@ select {
 .brand {
     font-family: var(--hand);
     font-weight: 600;
-    font-size: clamp(1.65rem, 7.5vw, 2.35rem);
+    font-size: clamp(1.2rem, 5.2vw, 2.25rem);
     line-height: 1.15;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
 }
 
 .lead {
@@ -267,7 +268,7 @@ select {
 
 .monkey {
     flex: none;
-    width: clamp(3.25rem, 15vw, 6rem);
+    width: clamp(2.85rem, 13.5vw, 5.75rem);
 }
 
 .monkey svg {
@@ -1196,6 +1197,11 @@ select {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.9rem;
+    }
+
+    .brand {
+        font-size: 2rem;
+        white-space: nowrap;
     }
 
     .hero .monkey {
